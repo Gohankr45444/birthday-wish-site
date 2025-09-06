@@ -12,6 +12,8 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "@vitejs/plugin-react": "^4.0.0",
+      "@react-three/fiber": "^8.13.0",
+  "three": "^0.161.0",
     "framer-motion": "^10.12.16",
     "lucide-react": "^0.277.0",
     "react-confetti": "^6.4.0"
