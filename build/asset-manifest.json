@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.css": "/birthday-wish-site/static/css/main.b34681c5.css",
+    "main.js": "/birthday-wish-site/static/js/main.ad96e483.js",
+    "index.html": "/birthday-wish-site/index.html",
+    "main.b34681c5.css.map": "/birthday-wish-site/static/css/main.b34681c5.css.map",
+    "main.ad96e483.js.map": "/birthday-wish-site/static/js/main.ad96e483.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.b34681c5.css",
+    "static/js/main.ad96e483.js"
+  ]
+}

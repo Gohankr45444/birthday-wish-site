@@ -1,28 +1,29 @@
-/* src/index.css */
-
-/* Reset & body styling */
-body {
-  margin: 0;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background: linear-gradient(to right, #fbc2eb, #a6c1ee);
-  overflow: hidden;
+/* Flickering candle flames */
+@keyframes flicker {
+  0% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.6; transform: scale(1.2); }
+  100% { opacity: 1; transform: scale(1); }
+}
+.animate-flicker {
+  animation: flicker 0.8s infinite alternate;
 }
 
-/* Center text */
-h1, h2, h3, p {
-  margin: 0;
-  padding: 0;
-  text-align: center;
+/* Smooth gradient background animation */
+@keyframes gradient {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+.animate-gradient {
+  background-size: 200% 200%;
+  animation: gradient 15s ease infinite;
 }
 
-/* Button styling */
-button {
-  cursor: pointer;
-  border: none;
-  outline: none;
-  transition: all 0.3s ease;
+/* Slow spin (for PartyPopper icon) */
+@keyframes spin-slow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }
-
-button:hover {
-  transform: scale(1.05);
+.animate-spin-slow {
+  animation: spin-slow 10s linear infinite;
 }
