@@ -1,4 +1,3 @@
-// BirthdayWish.jsx
 import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Confetti from "react-confetti";
@@ -6,9 +5,11 @@ import { Gift, PartyPopper } from "lucide-react";
 import { Canvas } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
 
+// Simple 3D Cake using three.js primitives
 function Cake3D({ candlesBlown }) {
   return (
     <>
+      {/* Cake layers */}
       <mesh position={[0, -0.5, 0]}>
         <cylinderGeometry args={[1.5, 1.5, 0.6, 32]} />
         <meshStandardMaterial color="#ffb6c1" />
@@ -22,6 +23,7 @@ function Cake3D({ candlesBlown }) {
         <meshStandardMaterial color="#ff85c1" />
       </mesh>
 
+      {/* Candles */}
       {Array.from({ length: 5 }).map((_, i) => (
         <group
           key={i}
@@ -51,20 +53,60 @@ function Cake3D({ candlesBlown }) {
   );
 }
 
-// Balloon and Firework components remain unchanged
+// 3D Balloon
+function Balloon3D({ position }) {
+  return (
+    <group position={position}>
+      <mesh>
+        <sphereGeometry args={[0.3, 32, 32]} />
+        <meshStandardMaterial color={"#ff4d6d"} />
+      </mesh>
+      <mesh position={[0, -0.5, 0]}>
+        <cylinderGeometry args={[0.01, 0.01, 1, 8]} />
+        <meshStandardMaterial color="gray" />
+      </mesh>
+    </group>
+  );
+}
+
+// 3D Firework Explosion
+function Firework3D({ position }) {
+  return (
+    <group position={position}>
+      {Array.from({ length: 20 }).map((_, i) => (
+        <mesh key={i}>
+          <sphereGeometry args={[0.05, 8, 8]} />
+          <meshStandardMaterial
+            emissive="yellow"
+            emissiveIntensity={2}
+            color="orange"
+          />
+        </mesh>
+      ))}
+    </group>
+  );
+}
 
 export default function BirthdayWish() {
   const [opened, setOpened] = useState(false);
-  const [windowSize, setWindowSize] = useState({ width: 0, height: 0 });
   const [candlesBlown, setCandlesBlown] = useState(false);
   const [name, setName] = useState("");
   const [finalName, setFinalName] = useState("");
+  const [windowSize, setWindowSize] = useState({
+    width: window.innerWidth,
+    height: window.innerHeight,
+  });
   const audioRef = useRef(null);
 
+  // Update window size on resize
   useEffect(() => {
-    setWindowSize({ width: window.innerWidth, height: window.innerHeight });
+    const handleResize = () =>
+      setWindowSize({ width: window.innerWidth, height: window.innerHeight });
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
   }, []);
 
+  // Play audio when gift opens
   useEffect(() => {
     if (opened && audioRef.current) {
       audioRef.current.play().catch(() => {});
@@ -73,10 +115,13 @@ export default function BirthdayWish() {
 
   return (
     <div className="flex items-center justify-center h-screen bg-gradient-to-tr from-pink-200 via-purple-200 to-blue-200 relative overflow-hidden">
+      {/* Background Music */}
       <audio ref={audioRef} src="/audio/happybirthday.mp3" autoPlay loop />
 
+      {/* Confetti */}
       {opened && <Confetti width={windowSize.width} height={windowSize.height} />}
 
+      {/* Gift Box */}
       <AnimatePresence>
         {!opened && (
           <motion.div
@@ -95,68 +140,103 @@ export default function BirthdayWish() {
         )}
       </AnimatePresence>
 
-      {opened && (
-        <motion.div
-          className="absolute flex flex-col items-center text-center p-6 bg-white/80 rounded-2xl shadow-2xl backdrop-blur-md"
-          initial={{ scale: 0, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ type: "spring", duration: 1 }}
-        >
-          <PartyPopper size={60} className="text-yellow-500 animate-spin-slow" />
-          <h1 className="text-4xl font-bold text-pink-600 mt-4">
-            🎉 Happy Birthday {finalName || ""} 🎉
-          </h1>
+      {/* Birthday Wishes */}
+      <AnimatePresence>
+        {opened && (
+          <motion.div
+            className="absolute flex flex-col items-center text-center p-6 bg-white/80 rounded-2xl shadow-2xl backdrop-blur-md"
+            initial={{ scale: 0, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ type: "spring", duration: 1 }}
+          >
+            <PartyPopper size={60} className="text-yellow-500 animate-spin-slow" />
+            <h1 className="text-4xl font-bold text-pink-600 mt-4">
+              🎉 Happy Birthday {finalName || ""} 🎉
+            </h1>
+            <p className="mt-2 text-lg text-gray-700">
+              Wishing you a day filled with love, laughter, and joy 💖
+            </p>
+            <p className="mt-4 text-md text-purple-700 font-semibold animate-pulse">
+              ✨ Make a wish and let the magic begin ✨
+            </p>
 
-          {!finalName && (
-            <div className="mt-4 flex gap-2">
-              <input
-                type="text"
-                placeholder="Enter your name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                className="px-3 py-2 rounded-lg border border-pink-400 focus:outline-none focus:ring-2 focus:ring-pink-500"
-              />
-              <button
-                onClick={() => setFinalName(name)}
-                className="bg-pink-500 text-white px-4 py-2 rounded-lg shadow hover:bg-pink-600"
-              >
-                Save
-              </button>
+            {/* Name Input */}
+            {!finalName && (
+              <div className="mt-4 flex gap-2">
+                <input
+                  type="text"
+                  placeholder="Enter your name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  className="px-3 py-2 rounded-lg border border-pink-400 focus:outline-none focus:ring-2 focus:ring-pink-500"
+                />
+                <button
+                  onClick={() => setFinalName(name)}
+                  className="bg-pink-500 text-white px-4 py-2 rounded-lg shadow hover:bg-pink-600"
+                >
+                  Save
+                </button>
+              </div>
+            )}
+
+            {/* 3D Scene */}
+            <div style={{ width: windowSize.width, height: windowSize.height / 2 }} className="mt-6">
+              <Canvas camera={{ position: [0, 3, 6], fov: 50 }}>
+                <ambientLight intensity={0.5} />
+                <directionalLight position={[5, 5, 5]} intensity={1} />
+
+                {/* Cake */}
+                <Cake3D candlesBlown={candlesBlown} />
+
+                {/* Balloons */}
+                {opened &&
+                  Array.from({ length: 5 }).map((_, i) => (
+                    <Balloon3D
+                      key={i}
+                      position={[
+                        Math.cos((i / 5) * Math.PI * 2) * 2,
+                        2,
+                        Math.sin((i / 5) * Math.PI * 2) * 2,
+                      ]}
+                    />
+                  ))}
+
+                {/* Fireworks */}
+                {candlesBlown &&
+                  Array.from({ length: 3 }).map((_, i) => (
+                    <Firework3D
+                      key={i}
+                      position={[Math.random() * 4 - 2, 3 + i, Math.random() * 4 - 2]}
+                    />
+                  ))}
+
+                <OrbitControls enableZoom={false} />
+              </Canvas>
             </div>
-          )}
 
-          <div className="mt-6 w-72 h-72">
-            <Canvas camera={{ position: [0, 3, 6], fov: 50 }}>
-              <ambientLight intensity={0.5} />
-              <directionalLight position={[5, 5, 5]} intensity={1} />
-
-              <Cake3D candlesBlown={candlesBlown} />
-
-              <OrbitControls enableZoom={false} />
-            </Canvas>
-          </div>
-
-          {!candlesBlown ? (
-            <motion.button
-              className="mt-4 flex items-center gap-2 bg-pink-500 text-white px-4 py-2 rounded-full shadow-lg hover:bg-pink-600"
-              onClick={() => setCandlesBlown(true)}
-              whileTap={{ scale: 0.9 }}
-            >
-              Blow the candles 🎂
-            </motion.button>
-          ) : (
-            <motion.div
-              initial={{ opacity: 0, scale: 0 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 1 }}
-              className="text-2xl text-orange-600 font-bold mt-4"
-            >
-              ✨ Candles blown! May your wishes come true ✨
-            </motion.div>
-          )}
-        </motion.div>
-      )}
+            {!candlesBlown ? (
+              <motion.button
+                className="mt-4 flex items-center gap-2 bg-pink-500 text-white px-4 py-2 rounded-full shadow-lg hover:bg-pink-600"
+                onClick={() => setCandlesBlown(true)}
+                whileTap={{ scale: 0.9 }}
+              >
+                Blow the candles 🎂
+              </motion.button>
+            ) : (
+              <motion.div
+                initial={{ opacity: 0, scale: 0 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 1 }}
+                className="text-2xl text-orange-600 font-bold mt-4"
+              >
+                ✨ Candles blown! May your wishes come true ✨
+              </motion.div>
+            )}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
+
 
