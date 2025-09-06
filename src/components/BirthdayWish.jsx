@@ -1,11 +1,11 @@
 
-
 import React, { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Confetti from "react-confetti";
 import { Gift, PartyPopper } from "lucide-react";
-import { Canvas } from "@react-three/fiber";
+import { Canvas, useFrame } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
+import * as THREE from "three";
 
 // Cake Component
 function Cake3D({ candlesBlown }) {
@@ -49,7 +49,67 @@ function Cake3D({ candlesBlown }) {
   );
 }
 
-// Canvas wrapper
+// Floating Balloon Component
+function Balloon({ position }) {
+  const ref = useRef();
+  const speed = 0.002 + Math.random() * 0.003;
+  const sway = Math.random() * 0.5;
+
+  useFrame(({ clock }) => {
+    if (ref.current) {
+      ref.current.position.y += speed;
+      ref.current.position.x += Math.sin(clock.elapsedTime + sway) * 0.002;
+      if (ref.current.position.y > 5) ref.current.position.y = -2;
+    }
+  });
+
+  return (
+    <group ref={ref} position={position}>
+      <mesh>
+        <sphereGeometry args={[0.3, 32, 32]} />
+        <meshStandardMaterial color={`hsl(${Math.random() * 360}, 70%, 60%)`} />
+      </mesh>
+      <mesh position={[0, -0.5, 0]}>
+        <cylinderGeometry args={[0.01, 0.01, 1, 8]} />
+        <meshStandardMaterial color="gray" />
+      </mesh>
+    </group>
+  );
+}
+
+// Firework Particle Component
+function FireworkParticle({ position }) {
+  const ref = useRef();
+  const velocity = useRef(
+    Array.from({ length: 20 }).map(() => new THREE.Vector3(
+      (Math.random() - 0.5) * 2,
+      Math.random() * 2,
+      (Math.random() - 0.5) * 2
+    ))
+  );
+
+  useFrame(() => {
+    if (ref.current) {
+      ref.current.children.forEach((child, i) => {
+        child.position.add(velocity.current[i]);
+        velocity.current[i].multiplyScalar(0.95); // slow down
+      });
+    }
+  });
+
+  return (
+    <group ref={ref} position={position}>
+      {Array.from({ length: 20 }).map((_, i) => (
+        <mesh key={i}>
+          <sphereGeometry args={[0.05, 8, 8]} />
+          <meshStandardMaterial emissive="yellow" emissiveIntensity={2} color="orange" />
+        </mesh>
+      ))}
+    </group>
+  );
+}
+
+// Responsive Canvas Wrapper
 function ResponsiveCanvas({ children }) {
   const containerRef = useRef(null);
   const [size, setSize] = useState({ width: 0, height: 0 });
@@ -81,6 +141,7 @@ function ResponsiveCanvas({ children }) {
   );
 }
 
+// Main Component
 export default function BirthdayWish() {
   const [opened, setOpened] = useState(false);
   const [candlesBlown, setCandlesBlown] = useState(false);
@@ -94,7 +155,7 @@ export default function BirthdayWish() {
 
   return (
     <div className="flex flex-col items-center justify-center h-screen w-screen bg-gradient-to-tr from-pink-200 via-purple-200 to-blue-200 relative overflow-visible">
-       <audio ref={audioRef} src="/audio/happybirthday.mp3" autoPlay loop />
+      <audio ref={audioRef} src="/audio/happybirthday.mp3" autoPlay loop />
 
       {opened && <Confetti width={window.innerWidth} height={window.innerHeight} />}
 
@@ -151,13 +212,25 @@ export default function BirthdayWish() {
             )}
 
             <ResponsiveCanvas>
+              {/* Cake */}
               <Cake3D candlesBlown={candlesBlown} />
+
+              {/* Floating Balloons */}
               {opened &&
-                Array.from({ length: 5 }).map((_, i) => (
-                  <mesh key={i}>
-                    <sphereGeometry args={[0.3, 32, 32]} />
-                    <meshStandardMaterial color="#ff4d6d" />
-                  </mesh>
+                Array.from({ length: 6 }).map((_, i) => (
+                  <Balloon
+                    key={i}
+                    position={[Math.random() * 4 - 2, Math.random() * 2, Math.random() * 4 - 2]}
+                  />
+                ))}
+
+              {/* Fireworks after blowing candles */}
+              {candlesBlown &&
+                Array.from({ length: 3 }).map((_, i) => (
+                  <FireworkParticle
+                    key={i}
+                    position={[Math.random() * 4 - 2, 2 + i, Math.random() * 4 - 2]}
+                  />
                 ))}
             </ResponsiveCanvas>
 
@@ -184,3 +257,4 @@ export default function BirthdayWish() {
     </div>
   );
 }
+
