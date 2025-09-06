@@ -1,13 +1,13 @@
 {
   "files": {
     "main.css": "/birthday-wish-site/static/css/main.e3bc9177.css",
-    "main.js": "/birthday-wish-site/static/js/main.b74a3b2d.js",
+    "main.js": "/birthday-wish-site/static/js/main.3d1a4577.js",
     "index.html": "/birthday-wish-site/index.html",
     "main.e3bc9177.css.map": "/birthday-wish-site/static/css/main.e3bc9177.css.map",
-    "main.b74a3b2d.js.map": "/birthday-wish-site/static/js/main.b74a3b2d.js.map"
+    "main.3d1a4577.js.map": "/birthday-wish-site/static/js/main.3d1a4577.js.map"
   },
   "entrypoints": [
     "static/css/main.e3bc9177.css",
-    "static/js/main.b74a3b2d.js"
+    "static/js/main.3d1a4577.js"
   ]
 }
