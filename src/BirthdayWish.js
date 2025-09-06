@@ -42,6 +42,36 @@ function Cake3D({ candlesBlown }) {
   );
 }
 
+// 3D Balloon
+function Balloon3D({ position }) {
+  return (
+    <group position={position}>
+      <mesh>
+        <sphereGeometry args={[0.3, 32, 32]} />
+        <meshStandardMaterial color={"#ff4d6d"} />
+      </mesh>
+      <mesh position={[0, -0.5, 0]}>
+        <cylinderGeometry args={[0.01, 0.01, 1, 8]} />
+        <meshStandardMaterial color="gray" />
+      </mesh>
+    </group>
+  );
+}
+
+// 3D Firework Explosion
+function Firework3D({ position }) {
+  return (
+    <group position={position}>
+      {Array.from({ length: 20 }).map((_, i) => (
+        <mesh key={i}>
+          <sphereGeometry args={[0.05, 8, 8]} />
+          <meshStandardMaterial emissive="yellow" emissiveIntensity={2} color="orange" />
+        </mesh>
+      ))}
+    </group>
+  );
+}
+
 export default function BirthdayWish() {
   const [opened, setOpened] = useState(false);
   const [windowSize, setWindowSize] = useState({ width: 0, height: 0 });
@@ -60,75 +90,6 @@ export default function BirthdayWish() {
     }
   }, [opened]);
 
-  // Floating balloons
-  const Balloons = () => {
-    const balloons = Array.from({ length: 7 });
-    return (
-      <>
-        {balloons.map((_, i) => (
-          <motion.div
-            key={i}
-            className="absolute text-4xl"
-            initial={{ y: windowSize.height + 100, x: Math.random() * windowSize.width }}
-            animate={{ y: -200 }}
-            transition={{
-              duration: 10 + Math.random() * 5,
-              repeat: Infinity,
-              delay: i * 2,
-            }}
-          >
-            🎈
-          </motion.div>
-        ))}
-      </>
-    );
-  };
-
-  // Floating sparkles
-  const SparkleEffect = () => {
-    const sparkles = Array.from({ length: 15 });
-    return (
-      <>
-        {sparkles.map((_, i) => (
-          <motion.div
-            key={i}
-            className="absolute text-yellow-400"
-            initial={{ opacity: 0, scale: 0, x: Math.random() * windowSize.width, y: Math.random() * windowSize.height }}
-            animate={{ opacity: [0, 1, 0], scale: [0, 1.5, 0] }}
-            transition={{ duration: 3, repeat: Infinity, delay: i * 0.5 }}
-          >
-            <Sparkles size={20} />
-          </motion.div>
-        ))}
-      </>
-    );
-  };
-
-  // Fireworks after blowing candles
-  const Fireworks = () => {
-    const explosions = Array.from({ length: 6 });
-    return (
-      <>
-        {explosions.map((_, i) => (
-          <motion.div
-            key={i}
-            className="absolute text-5xl"
-            initial={{
-              opacity: 0,
-              scale: 0,
-              x: Math.random() * windowSize.width,
-              y: Math.random() * (windowSize.height / 2),
-            }}
-            animate={{ opacity: [0, 1, 0], scale: [0, 2, 0] }}
-            transition={{ duration: 2, repeat: Infinity, delay: i * 1.5 }}
-          >
-            🎆
-          </motion.div>
-        ))}
-      </>
-    );
-  };
-
   return (
     <div className="flex items-center justify-center h-screen bg-gradient-to-tr from-pink-200 via-purple-200 to-blue-200 relative overflow-hidden">
       {/* Background Music */}
@@ -136,15 +97,6 @@ export default function BirthdayWish() {
 
       {/* Confetti */}
       {opened && <Confetti width={windowSize.width} height={windowSize.height} />}
-
-      {/* Balloons */}
-      {opened && <Balloons />}
-
-      {/* Sparkles */}
-      {opened && <SparkleEffect />}
-
-      {/* Fireworks after candles blown */}
-      {candlesBlown && <Fireworks />}
 
       {/* Gift Box */}
       <AnimatePresence>
@@ -204,12 +156,27 @@ export default function BirthdayWish() {
               </div>
             )}
 
-            {/* 3D Cake with Candles */}
-            <div className="mt-6 w-64 h-64">
-              <Canvas camera={{ position: [0, 2, 4], fov: 50 }}>
+            {/* 3D Scene with Cake, Balloons, and Fireworks */}
+            <div className="mt-6 w-72 h-72">
+              <Canvas camera={{ position: [0, 3, 6], fov: 50 }}>
                 <ambientLight intensity={0.5} />
                 <directionalLight position={[5, 5, 5]} intensity={1} />
+
+                {/* Cake */}
                 <Cake3D candlesBlown={candlesBlown} />
+
+                {/* Balloons */}
+                {opened &&
+                  Array.from({ length: 5 }).map((_, i) => (
+                    <Balloon3D key={i} position={[Math.cos((i / 5) * Math.PI * 2) * 2, 2, Math.sin((i / 5) * Math.PI * 2) * 2]} />
+                  ))}
+
+                {/* Fireworks after candles blown */}
+                {candlesBlown &&
+                  Array.from({ length: 3 }).map((_, i) => (
+                    <Firework3D key={i} position={[Math.random() * 4 - 2, 3 + i, Math.random() * 4 - 2]} />
+                  ))}
+
                 <OrbitControls enableZoom={false} />
               </Canvas>
             </div>
