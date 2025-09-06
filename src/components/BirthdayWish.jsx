@@ -93,7 +93,7 @@ export default function BirthdayWish() {
   return (
     <div className="flex items-center justify-center h-screen bg-gradient-to-tr from-pink-200 via-purple-200 to-blue-200 relative overflow-hidden">
       {/* Background Music */}
-      <audio ref={audioRef} src="https://www.bensound.com/bensound-music/bensound-celebration.mp3" loop />
+      <audio ref={audioRef} src="https://cdnsongs.com/music/data/Punjabi/201403/Disco_Singh/128/Happy_Birthday_5.mp3" autoPlay loop crossOrigin="anonymous" />
 
       {/* Confetti */}
       {opened && <Confetti width={windowSize.width} height={windowSize.height} />}
