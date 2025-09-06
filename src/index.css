@@ -1,0 +1,28 @@
+/* src/index.css */
+
+/* Reset & body styling */
+body {
+  margin: 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: linear-gradient(to right, #fbc2eb, #a6c1ee);
+  overflow: hidden;
+}
+
+/* Center text */
+h1, h2, h3, p {
+  margin: 0;
+  padding: 0;
+  text-align: center;
+}
+
+/* Button styling */
+button {
+  cursor: pointer;
+  border: none;
+  outline: none;
+  transition: all 0.3s ease;
+}
+
+button:hover {
+  transform: scale(1.05);
+}
