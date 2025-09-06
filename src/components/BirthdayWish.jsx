@@ -1,3 +1,10 @@
+
+
+
+
+
+
+
 import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Confetti from "react-confetti";
@@ -5,11 +12,10 @@ import { Gift, PartyPopper } from "lucide-react";
 import { Canvas } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
 
-// Simple 3D Cake using three.js primitives
+// 3D Cake
 function Cake3D({ candlesBlown }) {
   return (
     <>
-      {/* Cake layers */}
       <mesh position={[0, -0.5, 0]}>
         <cylinderGeometry args={[1.5, 1.5, 0.6, 32]} />
         <meshStandardMaterial color="#ffb6c1" />
@@ -69,18 +75,14 @@ function Balloon3D({ position }) {
   );
 }
 
-// 3D Firework Explosion
+// 3D Firework
 function Firework3D({ position }) {
   return (
     <group position={position}>
       {Array.from({ length: 20 }).map((_, i) => (
         <mesh key={i}>
           <sphereGeometry args={[0.05, 8, 8]} />
-          <meshStandardMaterial
-            emissive="yellow"
-            emissiveIntensity={2}
-            color="orange"
-          />
+          <meshStandardMaterial emissive="yellow" emissiveIntensity={2} color="orange" />
         </mesh>
       ))}
     </group>
@@ -89,24 +91,19 @@ function Firework3D({ position }) {
 
 export default function BirthdayWish() {
   const [opened, setOpened] = useState(false);
+  const [windowSize, setWindowSize] = useState({ width: 0, height: 0 });
   const [candlesBlown, setCandlesBlown] = useState(false);
   const [name, setName] = useState("");
   const [finalName, setFinalName] = useState("");
-  const [windowSize, setWindowSize] = useState({
-    width: window.innerWidth,
-    height: window.innerHeight,
-  });
+  const [ready, setReady] = useState(false);
   const audioRef = useRef(null);
 
-  // Update window size on resize
+  // Wait for mount
   useEffect(() => {
-    const handleResize = () =>
-      setWindowSize({ width: window.innerWidth, height: window.innerHeight });
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
+    setWindowSize({ width: window.innerWidth, height: window.innerHeight });
+    setReady(true);
   }, []);
 
-  // Play audio when gift opens
   useEffect(() => {
     if (opened && audioRef.current) {
       audioRef.current.play().catch(() => {});
@@ -180,39 +177,41 @@ export default function BirthdayWish() {
             )}
 
             {/* 3D Scene */}
-            <div style={{ width: windowSize.width, height: windowSize.height / 2 }} className="mt-6">
-              <Canvas camera={{ position: [0, 3, 6], fov: 50 }}>
-                <ambientLight intensity={0.5} />
-                <directionalLight position={[5, 5, 5]} intensity={1} />
+            {ready && (
+              <div className="mt-6 w-72 h-72">
+                <Canvas camera={{ position: [0, 3, 6], fov: 50 }}>
+                  <ambientLight intensity={0.5} />
+                  <directionalLight position={[5, 5, 5]} intensity={1} />
 
-                {/* Cake */}
-                <Cake3D candlesBlown={candlesBlown} />
+                  {/* Cake */}
+                  <Cake3D candlesBlown={candlesBlown} />
 
-                {/* Balloons */}
-                {opened &&
-                  Array.from({ length: 5 }).map((_, i) => (
-                    <Balloon3D
-                      key={i}
-                      position={[
-                        Math.cos((i / 5) * Math.PI * 2) * 2,
-                        2,
-                        Math.sin((i / 5) * Math.PI * 2) * 2,
-                      ]}
-                    />
-                  ))}
+                  {/* Balloons */}
+                  {opened &&
+                    Array.from({ length: 5 }).map((_, i) => (
+                      <Balloon3D
+                        key={i}
+                        position={[
+                          Math.cos((i / 5) * Math.PI * 2) * 2,
+                          2,
+                          Math.sin((i / 5) * Math.PI * 2) * 2,
+                        ]}
+                      />
+                    ))}
 
-                {/* Fireworks */}
-                {candlesBlown &&
-                  Array.from({ length: 3 }).map((_, i) => (
-                    <Firework3D
-                      key={i}
-                      position={[Math.random() * 4 - 2, 3 + i, Math.random() * 4 - 2]}
-                    />
-                  ))}
+                  {/* Fireworks */}
+                  {candlesBlown &&
+                    Array.from({ length: 3 }).map((_, i) => (
+                      <Firework3D
+                        key={i}
+                        position={[Math.random() * 4 - 2, 3 + i, Math.random() * 4 - 2]}
+                      />
+                    ))}
 
-                <OrbitControls enableZoom={false} />
-              </Canvas>
-            </div>
+                  <OrbitControls enableZoom={false} />
+                </Canvas>
+              </div>
+            )}
 
             {!candlesBlown ? (
               <motion.button
@@ -238,5 +237,4 @@ export default function BirthdayWish() {
     </div>
   );
 }
-
 
