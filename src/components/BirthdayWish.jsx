@@ -5,28 +5,30 @@ import { Gift, PartyPopper } from "lucide-react";
 import { Canvas } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
 
+// Define cake dimensions and positions globally within this file
+// This makes them accessible to both Cake3D and BirthdayWish components.
+const layer1Height = 1.2; // Bottom layer height
+const layer1Radius = 2.5; // Bottom layer radius
+const layer1Y = layer1Height / 2; // Center Y for bottom layer to sit on y=0
+
+const layer2Height = 1.0; // Middle layer height
+const layer2Radius = 1.8; // Middle layer radius
+// Center Y for middle layer, stacked on top of layer1
+const layer2Y = layer1Y + (layer1Height / 2) + (layer2Height / 2);
+
+const layer3Height = 0.8; // Top layer height
+const layer3Radius = 1.2; // Top layer radius
+// Center Y for top layer, stacked on top of layer2
+const layer3Y = layer2Y + (layer2Height / 2) + (layer3Height / 2);
+
+// Position for the base of the candles, slightly above the top layer
+const candleBaseY = layer3Y + (layer3Height / 2) + 0.1;
+// Radius for candle placement on the top layer
+const candlePlacementRadius = layer3Radius * 0.7; // 70% of top layer radius
+
+
 // 3D Cake
 function Cake3D({ candlesBlown }) {
-  // Define dimensions for a larger cake, calculating positions for correct stacking
-  const layer1Height = 1.2; // Bottom layer height
-  const layer1Radius = 2.5; // Bottom layer radius
-  const layer1Y = layer1Height / 2; // Center Y for bottom layer to sit on y=0
-
-  const layer2Height = 1.0; // Middle layer height
-  const layer2Radius = 1.8; // Middle layer radius
-  // Center Y for middle layer, stacked on top of layer1
-  const layer2Y = layer1Y + (layer1Height / 2) + (layer2Height / 2);
-
-  const layer3Height = 0.8; // Top layer height
-  const layer3Radius = 1.2; // Top layer radius
-  // Center Y for top layer, stacked on top of layer2
-  const layer3Y = layer2Y + (layer2Height / 2) + (layer3Height / 2);
-
-  // Position for the base of the candles, slightly above the top layer
-  const candleBaseY = layer3Y + (layer3Height / 2) + 0.1;
-  // Radius for candle placement on the top layer
-  const candlePlacementRadius = layer3Radius * 0.7; // 70% of top layer radius
-
   return (
     <>
       {/* Bottom Layer */}
@@ -75,7 +77,7 @@ function Cake3D({ candlesBlown }) {
   );
 }
 
-// 3D Balloon (no change needed for this issue)
+// 3D Balloon
 function Balloon3D({ position }) {
   return (
     <group position={position}>
@@ -91,7 +93,7 @@ function Balloon3D({ position }) {
   );
 }
 
-// 3D Firework (no change needed for this issue)
+// 3D Firework
 function Firework3D({ position }) {
   return (
     <group position={position}>
