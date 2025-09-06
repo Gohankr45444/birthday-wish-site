@@ -4,7 +4,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Confetti from "react-confetti";
 import { Gift, PartyPopper } from "lucide-react";
-import { Canvas, useThree } from "@react-three/fiber";
+import { Canvas } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
 
 // Cake Component
@@ -24,7 +24,6 @@ function Cake3D({ candlesBlown }) {
         <meshStandardMaterial color="#ff85c1" />
       </mesh>
 
-      {/* Candles */}
       {Array.from({ length: 5 }).map((_, i) => (
         <group
           key={i}
@@ -50,63 +49,32 @@ function Cake3D({ candlesBlown }) {
   );
 }
 
-// Balloon Component
-function Balloon3D({ position }) {
-  return (
-    <group position={position}>
-      <mesh>
-        <sphereGeometry args={[0.3, 32, 32]} />
-        <meshStandardMaterial color="#ff4d6d" />
-      </mesh>
-      <mesh position={[0, -0.5, 0]}>
-        <cylinderGeometry args={[0.01, 0.01, 1, 8]} />
-        <meshStandardMaterial color="gray" />
-      </mesh>
-    </group>
-  );
-}
-
-// Firework Component
-function Firework3D({ position }) {
-  return (
-    <group position={position}>
-      {Array.from({ length: 20 }).map((_, i) => (
-        <mesh key={i}>
-          <sphereGeometry args={[0.05, 8, 8]} />
-          <meshStandardMaterial emissive="yellow" emissiveIntensity={2} color="orange" />
-        </mesh>
-      ))}
-    </group>
-  );
-}
-
-// Auto-resizing Canvas wrapper
+// Canvas wrapper
 function ResponsiveCanvas({ children }) {
-  const containerRef = useRef();
+  const containerRef = useRef(null);
   const [size, setSize] = useState({ width: 0, height: 0 });
 
   useEffect(() => {
-    const updateSize = () => {
+    const observer = new ResizeObserver(() => {
       if (containerRef.current) {
         setSize({
           width: containerRef.current.offsetWidth,
           height: containerRef.current.offsetHeight,
         });
       }
-    };
-    updateSize();
-    window.addEventListener("resize", updateSize);
-    return () => window.removeEventListener("resize", updateSize);
+    });
+    observer.observe(containerRef.current);
+    return () => observer.disconnect();
   }, []);
 
   return (
-    <div ref={containerRef} className="w-full max-w-md h-96">
+    <div ref={containerRef} className="w-full max-w-md h-96 pointer-events-auto">
       {size.width && size.height && (
-        <Canvas
-          style={{ width: "100%", height: "100%" }}
-          camera={{ position: [0, 3, 6], fov: 50 }}
-        >
+        <Canvas style={{ width: "100%", height: "100%" }} camera={{ position: [0, 3, 6], fov: 50 }}>
+          <ambientLight intensity={0.5} />
+          <directionalLight position={[5, 5, 5]} intensity={1} />
           {children}
+          <OrbitControls enableZoom={false} />
         </Canvas>
       )}
     </div>
@@ -125,38 +93,36 @@ export default function BirthdayWish() {
   }, [opened]);
 
   return (
-    <div className="flex flex-col items-center justify-center h-screen w-screen bg-gradient-to-tr from-pink-200 via-purple-200 to-blue-200 relative overflow-hidden">
-      <audio ref={audioRef} src="/audio/happybirthday.mp3" autoPlay loop />
+    <div className="flex flex-col items-center justify-center h-screen w-screen bg-gradient-to-tr from-pink-200 via-purple-200 to-blue-200 relative overflow-visible">
+       <audio ref={audioRef} src="/audio/happybirthday.mp3" autoPlay loop />
 
       {opened && <Confetti width={window.innerWidth} height={window.innerHeight} />}
 
       {/* Gift */}
-      <AnimatePresence>
-        {!opened && (
-          <motion.div
-            className="flex flex-col items-center cursor-pointer"
-            onClick={() => setOpened(true)}
-            initial={{ scale: 0 }}
-            animate={{ scale: 1, rotate: [0, 10, -10, 0] }}
-            transition={{ duration: 1, type: "spring" }}
-            exit={{ opacity: 0, y: -100 }}
-          >
-            <Gift size={100} className="text-pink-600 drop-shadow-lg" />
-            <p className="mt-4 text-xl font-semibold text-pink-700 animate-bounce">
-              Tap to open 🎁
-            </p>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {!opened && (
+        <motion.div
+          className="flex flex-col items-center cursor-pointer"
+          onClick={() => setOpened(true)}
+          initial={{ scale: 0 }}
+          animate={{ scale: 1 }}
+          transition={{ type: "spring", duration: 1 }}
+        >
+          <Gift size={100} className="text-pink-600 drop-shadow-lg" />
+          <p className="mt-4 text-xl font-semibold text-pink-700 animate-bounce">
+            Tap to open 🎁
+          </p>
+        </motion.div>
+      )}
 
-      {/* Wishes */}
+      {/* Birthday Scene */}
       <AnimatePresence>
         {opened && (
           <motion.div
-            className="absolute flex flex-col items-center text-center p-6 bg-white/80 rounded-2xl shadow-2xl backdrop-blur-md"
-            initial={{ scale: 0, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ type: "spring", duration: 1 }}
+            className="absolute flex flex-col items-center text-center p-6 bg-white/80 rounded-2xl shadow-2xl backdrop-blur-md pointer-events-auto"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 1 }}
           >
             <PartyPopper size={60} className="text-yellow-500 animate-spin-slow" />
             <h1 className="text-4xl font-bold text-pink-600 mt-4">
@@ -164,9 +130,6 @@ export default function BirthdayWish() {
             </h1>
             <p className="mt-2 text-lg text-gray-700">
               Wishing you a day filled with love, laughter, and joy 💖
-            </p>
-            <p className="mt-4 text-md text-purple-700 font-semibold animate-pulse">
-              ✨ Make a wish and let the magic begin ✨
             </p>
 
             {!finalName && (
@@ -187,30 +150,15 @@ export default function BirthdayWish() {
               </div>
             )}
 
-            {/* 3D Scene */}
             <ResponsiveCanvas>
-              <ambientLight intensity={0.5} />
-              <directionalLight position={[5, 5, 5]} intensity={1} />
               <Cake3D candlesBlown={candlesBlown} />
               {opened &&
                 Array.from({ length: 5 }).map((_, i) => (
-                  <Balloon3D
-                    key={i}
-                    position={[
-                      Math.cos((i / 5) * Math.PI * 2) * 2,
-                      2,
-                      Math.sin((i / 5) * Math.PI * 2) * 2,
-                    ]}
-                  />
+                  <mesh key={i}>
+                    <sphereGeometry args={[0.3, 32, 32]} />
+                    <meshStandardMaterial color="#ff4d6d" />
+                  </mesh>
                 ))}
-              {candlesBlown &&
-                Array.from({ length: 3 }).map((_, i) => (
-                  <Firework3D
-                    key={i}
-                    position={[Math.random() * 4 - 2, 3 + i, Math.random() * 4 - 2]}
-                  />
-                ))}
-              <OrbitControls enableZoom={false} />
             </ResponsiveCanvas>
 
             {!candlesBlown ? (
@@ -223,9 +171,8 @@ export default function BirthdayWish() {
               </motion.button>
             ) : (
               <motion.div
-                initial={{ opacity: 0, scale: 0 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 1 }}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
                 className="text-2xl text-orange-600 font-bold mt-4"
               >
                 ✨ Candles blown! May your wishes come true ✨
@@ -237,4 +184,3 @@ export default function BirthdayWish() {
     </div>
   );
 }
-
