@@ -101,7 +101,7 @@ function FireworkParticle({ position }) {
     if (ref.current) {
       ref.current.children.forEach((child, i) => {
         child.position.add(velocity.current[i]);
-        velocity.current[i].multiplyScalar(0.95);
+        velocity.current[i].multiplyScalar(0.95); // slow down
       });
     }
   });
@@ -122,7 +122,7 @@ function FireworkParticle({ position }) {
   );
 }
 
-// 📐 Responsive Canvas
+// 📐 Responsive Canvas Wrapper
 function ResponsiveCanvas({ children }) {
   const containerRef = useRef(null);
   const [size, setSize] = useState({ width: 0, height: 0 });
@@ -172,9 +172,50 @@ export default function BirthdayWish() {
     if (opened && audioRef.current) audioRef.current.play().catch(() => {});
   }, [opened]);
 
+  // 🎤 Microphone detection
+  useEffect(() => {
+    if (!opened || candlesBlown) return;
+
+    let audioContext, analyser, dataArray, source;
+
+    async function enableMic() {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        analyser = audioContext.createAnalyser();
+        analyser.fftSize = 256;
+        const bufferLength = analyser.frequencyBinCount;
+        dataArray = new Uint8Array(bufferLength);
+
+        source = audioContext.createMediaStreamSource(stream);
+        source.connect(analyser);
+
+        const checkVolume = () => {
+          analyser.getByteFrequencyData(dataArray);
+          let avg =
+            dataArray.reduce((a, b) => a + b, 0) / dataArray.length;
+
+          if (avg > 60) { // 🎤 Threshold for blowing
+            setCandlesBlown(true);
+            stream.getTracks().forEach((track) => track.stop());
+            audioContext.close();
+          } else {
+            requestAnimationFrame(checkVolume);
+          }
+        };
+
+        checkVolume();
+      } catch (err) {
+        console.warn("Mic access denied:", err);
+      }
+    }
+
+    enableMic();
+  }, [opened, candlesBlown]);
+
   return (
     <div className="flex flex-col items-center justify-center h-screen w-screen bg-gradient-to-tr from-pink-200 via-purple-200 to-blue-200 relative overflow-hidden">
-      {/* 🎵 Music */}
+      {/* 🎵 Background Music */}
       <audio ref={audioRef} src="/audio/happybirthday.mp3" autoPlay loop />
 
       {/* 🎊 Confetti */}
@@ -209,20 +250,22 @@ export default function BirthdayWish() {
             transition={{ duration: 1 }}
           >
             <PartyPopper
-              size={45}
+              size={50}
               className="text-yellow-500 animate-spin-slow"
             />
-            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-pink-600 mt-3">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-pink-600 mt-3">
               🎉 Happy Birthday Punnu 🎉
             </h1>
             <p className="mt-2 text-sm sm:text-base md:text-lg text-gray-700">
               Wishing you a day filled with love, laughter, and joy 💖
             </p>
 
+            {/* 🖼️ Cake + Balloons + Fireworks */}
             <ResponsiveCanvas>
               <Cake3D candlesBlown={candlesBlown} />
 
-              {!candlesBlown &&
+              {/* Balloons */}
+              {opened &&
                 Array.from({ length: 6 }).map((_, i) => (
                   <Balloon
                     key={i}
@@ -234,6 +277,7 @@ export default function BirthdayWish() {
                   />
                 ))}
 
+              {/* Fireworks */}
               {candlesBlown &&
                 Array.from({ length: 3 }).map((_, i) => (
                   <FireworkParticle
@@ -247,19 +291,25 @@ export default function BirthdayWish() {
                 ))}
             </ResponsiveCanvas>
 
+            {/* Button / Candles Message */}
             {!candlesBlown ? (
-              <motion.button
-                className="mt-4 flex items-center gap-2 bg-pink-500 text-white px-3 py-2 sm:px-4 sm:py-2 rounded-full shadow-lg hover:bg-pink-600 text-sm sm:text-base"
-                onClick={() => setCandlesBlown(true)}
-                whileTap={{ scale: 0.9 }}
-              >
-                Blow the candles 🎂
-              </motion.button>
+              <>
+                <motion.button
+                  className="mt-4 flex items-center gap-2 bg-pink-500 text-white px-3 py-2 sm:px-4 sm:py-2 rounded-full shadow-lg hover:bg-pink-600 text-sm sm:text-base"
+                  onClick={() => setCandlesBlown(true)}
+                  whileTap={{ scale: 0.9 }}
+                >
+                  Blow the candles 🎂 (Fallback)
+                </motion.button>
+                <p className="mt-2 text-xs sm:text-sm text-gray-600">
+                  🎤 Or simply blow into your mic to extinguish the candles
+                </p>
+              </>
             ) : (
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                className="text-base sm:text-lg md:text-xl text-orange-600 font-bold mt-4"
+                className="text-lg sm:text-xl md:text-2xl text-orange-600 font-bold mt-4"
               >
                 ✨ Candles blown! May your wishes come true ✨
               </motion.div>
