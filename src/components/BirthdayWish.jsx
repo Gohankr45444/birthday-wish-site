@@ -299,10 +299,10 @@ export default function BirthdayWish() {
                   onClick={() => setCandlesBlown(true)}
                   whileTap={{ scale: 0.9 }}
                 >
-                  Blow the candles 🎂 (Fallback)
+                  Blow the candles 🎂
                 </motion.button>
                 <p className="mt-2 text-xs sm:text-sm text-gray-600">
-                  🎤 Or simply blow into your mic to extinguish the candles
+                  🎤 Mic mein phoonk maro 😉
                 </p>
               </>
             ) : (
