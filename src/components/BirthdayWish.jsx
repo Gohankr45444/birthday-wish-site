@@ -6,11 +6,10 @@ import { Canvas, useFrame } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
 import * as THREE from "three";
 
-// =================== Cake ===================
+// 🍰 Cake Component
 function Cake3D({ candlesBlown }) {
   return (
     <>
-      {/* Cake layers */}
       <mesh position={[0, 0, 0]}>
         <cylinderGeometry args={[1.5, 1.5, 0.6, 32]} />
         <meshStandardMaterial color="#ffb6c1" />
@@ -54,7 +53,7 @@ function Cake3D({ candlesBlown }) {
   );
 }
 
-// =================== Balloons ===================
+// 🎈 Floating Balloon
 function Balloon({ position }) {
   const ref = useRef();
   const speed = 0.002 + Math.random() * 0.003;
@@ -84,7 +83,7 @@ function Balloon({ position }) {
   );
 }
 
-// =================== Fireworks ===================
+// 🎆 Firework Particles
 function FireworkParticle({ position }) {
   const ref = useRef();
   const velocity = useRef(
@@ -123,101 +122,67 @@ function FireworkParticle({ position }) {
   );
 }
 
-// =================== Responsive Canvas ===================
+// 📐 Responsive Canvas
 function ResponsiveCanvas({ children }) {
+  const containerRef = useRef(null);
+  const [size, setSize] = useState({ width: 0, height: 0 });
+
+  useEffect(() => {
+    const observer = new ResizeObserver(() => {
+      if (containerRef.current) {
+        setSize({
+          width: containerRef.current.offsetWidth,
+          height: containerRef.current.offsetHeight,
+        });
+      }
+    });
+    observer.observe(containerRef.current);
+    return () => observer.disconnect();
+  }, []);
+
+  const fov = size.width < 640 ? 65 : size.width < 1024 ? 55 : 50;
+
   return (
-    <div className="w-full max-w-md h-96 pointer-events-auto">
-      <Canvas
-        style={{ width: "100%", height: "100%" }}
-        camera={{ position: [0, 3, 6], fov: 50 }}
-      >
-        <ambientLight intensity={0.5} />
-        <directionalLight position={[5, 5, 5]} intensity={1} />
-        {children}
-        <OrbitControls enableZoom={false} />
-      </Canvas>
+    <div
+      ref={containerRef}
+      className="w-full h-[45vh] sm:h-[55vh] md:h-[65vh] lg:h-[70vh] pointer-events-auto"
+    >
+      {size.width && size.height && (
+        <Canvas
+          style={{ width: "100%", height: "100%" }}
+          camera={{ position: [0, 3, 6], fov }}
+        >
+          <ambientLight intensity={0.6} />
+          <directionalLight position={[5, 5, 5]} intensity={1} />
+          {children}
+          <OrbitControls enableZoom={false} enablePan={false} />
+        </Canvas>
+      )}
     </div>
   );
 }
 
-// =================== Main Component ===================
+// 🎉 Main Component
 export default function BirthdayWish() {
   const [opened, setOpened] = useState(false);
   const [candlesBlown, setCandlesBlown] = useState(false);
   const audioRef = useRef(null);
-  const touchStartY = useRef(0);
 
-  // Play music
   useEffect(() => {
-    if (opened && audioRef.current) {
-      audioRef.current.play().catch(() => {});
-    }
+    if (opened && audioRef.current) audioRef.current.play().catch(() => {});
   }, [opened]);
 
-  // Mic-based blow detection 🎤
-  useEffect(() => {
-    if (!opened || candlesBlown) return;
-
-    let audioContext;
-    let analyser;
-    let dataArray;
-
-    const startMic = async () => {
-      try {
-        audioContext = new (window.AudioContext || window.webkitAudioContext)();
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        const source = audioContext.createMediaStreamSource(stream);
-        analyser = audioContext.createAnalyser();
-        source.connect(analyser);
-        analyser.fftSize = 256;
-        dataArray = new Uint8Array(analyser.frequencyBinCount);
-
-        const detectBlow = () => {
-          if (!candlesBlown) {
-            analyser.getByteFrequencyData(dataArray);
-            let volume = dataArray.reduce((a, b) => a + b, 0) / dataArray.length;
-            if (volume > 40) {
-              setCandlesBlown(true);
-            } else {
-              requestAnimationFrame(detectBlow);
-            }
-          }
-        };
-        detectBlow();
-      } catch (err) {
-        console.error("Mic access denied", err);
-      }
-    };
-
-    startMic();
-
-    return () => {
-      if (audioContext) audioContext.close();
-    };
-  }, [opened, candlesBlown]);
-
-  // Swipe detection 📱
-  const handleTouchStart = (e) => {
-    touchStartY.current = e.touches[0].clientY;
-  };
-  const handleTouchEnd = (e) => {
-    const endY = e.changedTouches[0].clientY;
-    if (touchStartY.current - endY > 50) {
-      setCandlesBlown(true);
-    }
-  };
-
   return (
-    <div
-      className="flex flex-col items-center justify-center h-screen w-screen bg-gradient-to-tr from-pink-200 via-purple-200 to-blue-200 relative overflow-hidden"
-      onTouchStart={handleTouchStart}
-      onTouchEnd={handleTouchEnd}
-    >
+    <div className="flex flex-col items-center justify-center h-screen w-screen bg-gradient-to-tr from-pink-200 via-purple-200 to-blue-200 relative overflow-hidden">
+      {/* 🎵 Music */}
       <audio ref={audioRef} src="/audio/happybirthday.mp3" autoPlay loop />
 
-      {opened && <Confetti width={window.innerWidth} height={window.innerHeight} />}
+      {/* 🎊 Confetti */}
+      {opened && (
+        <Confetti width={window.innerWidth} height={window.innerHeight} />
+      )}
 
-      {/* Gift Box */}
+      {/* 🎁 Gift */}
       {!opened && (
         <motion.div
           className="flex flex-col items-center cursor-pointer"
@@ -227,58 +192,64 @@ export default function BirthdayWish() {
           transition={{ type: "spring", duration: 1 }}
         >
           <Gift size={100} className="text-pink-600 drop-shadow-lg" />
-          <p className="mt-4 text-xl font-semibold text-pink-700 animate-bounce">
+          <p className="mt-4 text-lg sm:text-xl font-semibold text-pink-700 animate-bounce">
             Tap to open 🎁
           </p>
         </motion.div>
       )}
 
-      {/* Birthday Scene */}
+      {/* 🎂 Birthday Scene */}
       <AnimatePresence>
         {opened && (
           <motion.div
-            className="absolute flex flex-col items-center text-center p-6 bg-white/80 rounded-2xl shadow-2xl backdrop-blur-md"
+            className="absolute flex flex-col items-center text-center p-4 sm:p-6 bg-white/80 rounded-2xl shadow-2xl backdrop-blur-md pointer-events-auto max-w-[95%] sm:max-w-lg"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
             transition={{ duration: 1 }}
           >
-            <PartyPopper size={60} className="text-yellow-500 animate-spin-slow" />
-            <h1 className="text-3xl md:text-4xl font-bold text-pink-600 mt-4">
-              🎉 Happy Birthday 🎉
+            <PartyPopper
+              size={45}
+              className="text-yellow-500 animate-spin-slow"
+            />
+            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-pink-600 mt-3">
+              🎉 Happy Birthday Punnu 🎉
             </h1>
-            <p className="mt-2 text-lg text-gray-700">
+            <p className="mt-2 text-sm sm:text-base md:text-lg text-gray-700">
               Wishing you a day filled with love, laughter, and joy 💖
             </p>
 
             <ResponsiveCanvas>
               <Cake3D candlesBlown={candlesBlown} />
+
               {!candlesBlown &&
                 Array.from({ length: 6 }).map((_, i) => (
                   <Balloon
                     key={i}
-                    position={[Math.random() * 4 - 2, Math.random() * 2, Math.random() * 4 - 2]}
+                    position={[
+                      Math.random() * 4 - 2,
+                      Math.random() * 2,
+                      Math.random() * 4 - 2,
+                    ]}
                   />
                 ))}
+
               {candlesBlown &&
                 Array.from({ length: 3 }).map((_, i) => (
                   <FireworkParticle
                     key={i}
-                    position={[Math.random() * 4 - 2, 2 + i, Math.random() * 4 - 2]}
+                    position={[
+                      Math.random() * 4 - 2,
+                      2 + i,
+                      Math.random() * 4 - 2,
+                    ]}
                   />
                 ))}
             </ResponsiveCanvas>
 
-            {/* Instructions */}
-            {!candlesBlown && (
-              <p className="mt-4 text-md text-purple-700 font-semibold animate-pulse">
-                🎤 Blow into your mic or swipe down to put out the candles 🎂
-              </p>
-            )}
-
-            {/* Fallback Button */}
             {!candlesBlown ? (
               <motion.button
-                className="mt-4 flex items-center gap-2 bg-pink-500 text-white px-4 py-2 rounded-full shadow-lg hover:bg-pink-600"
+                className="mt-4 flex items-center gap-2 bg-pink-500 text-white px-3 py-2 sm:px-4 sm:py-2 rounded-full shadow-lg hover:bg-pink-600 text-sm sm:text-base"
                 onClick={() => setCandlesBlown(true)}
                 whileTap={{ scale: 0.9 }}
               >
@@ -288,7 +259,7 @@ export default function BirthdayWish() {
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                className="text-2xl text-orange-600 font-bold mt-4"
+                className="text-base sm:text-lg md:text-xl text-orange-600 font-bold mt-4"
               >
                 ✨ Candles blown! May your wishes come true ✨
               </motion.div>
