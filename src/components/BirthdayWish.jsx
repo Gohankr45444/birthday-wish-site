@@ -1,5 +1,6 @@
 
 
+
 import React, { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Confetti from "react-confetti";
@@ -8,7 +9,7 @@ import { Canvas, useFrame } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
 import * as THREE from "three";
 
-// Cake Component
+// 🍰 Cake Component
 function Cake3D({ candlesBlown }) {
   return (
     <>
@@ -25,6 +26,7 @@ function Cake3D({ candlesBlown }) {
         <meshStandardMaterial color="#ff85c1" />
       </mesh>
 
+      {/* Candles */}
       {Array.from({ length: 5 }).map((_, i) => (
         <group
           key={i}
@@ -41,7 +43,11 @@ function Cake3D({ candlesBlown }) {
           {!candlesBlown && (
             <mesh position={[0, 0.25, 0]}>
               <sphereGeometry args={[0.07, 16, 16]} />
-              <meshStandardMaterial emissive="orange" emissiveIntensity={2} color="yellow" />
+              <meshStandardMaterial
+                emissive="orange"
+                emissiveIntensity={2}
+                color="yellow"
+              />
             </mesh>
           )}
         </group>
@@ -50,7 +56,7 @@ function Cake3D({ candlesBlown }) {
   );
 }
 
-// Floating Balloon Component
+// 🎈 Floating Balloon
 function Balloon({ position }) {
   const ref = useRef();
   const speed = 0.002 + Math.random() * 0.003;
@@ -68,7 +74,9 @@ function Balloon({ position }) {
     <group ref={ref} position={position}>
       <mesh>
         <sphereGeometry args={[0.3, 32, 32]} />
-        <meshStandardMaterial color={`hsl(${Math.random() * 360}, 70%, 60%)`} />
+        <meshStandardMaterial
+          color={`hsl(${Math.random() * 360}, 70%, 60%)`}
+        />
       </mesh>
       <mesh position={[0, -0.5, 0]}>
         <cylinderGeometry args={[0.01, 0.01, 1, 8]} />
@@ -78,15 +86,18 @@ function Balloon({ position }) {
   );
 }
 
-// Firework Particle Component
+// 🎆 Firework Particles
 function FireworkParticle({ position }) {
   const ref = useRef();
   const velocity = useRef(
-    Array.from({ length: 20 }).map(() => new THREE.Vector3(
-      (Math.random() - 0.5) * 2,
-      Math.random() * 2,
-      (Math.random() - 0.5) * 2
-    ))
+    Array.from({ length: 20 }).map(
+      () =>
+        new THREE.Vector3(
+          (Math.random() - 0.5) * 2,
+          Math.random() * 2,
+          (Math.random() - 0.5) * 2
+        )
+    )
   );
 
   useFrame(() => {
@@ -103,14 +114,18 @@ function FireworkParticle({ position }) {
       {Array.from({ length: 20 }).map((_, i) => (
         <mesh key={i}>
           <sphereGeometry args={[0.05, 8, 8]} />
-          <meshStandardMaterial emissive="yellow" emissiveIntensity={2} color="orange" />
+          <meshStandardMaterial
+            emissive="yellow"
+            emissiveIntensity={2}
+            color="orange"
+          />
         </mesh>
       ))}
     </group>
   );
 }
 
-// Responsive Canvas Wrapper
+// 📐 Responsive Canvas Wrapper
 function ResponsiveCanvas({ children }) {
   const containerRef = useRef(null);
   const [size, setSize] = useState({ width: 0, height: 0 });
@@ -128,26 +143,32 @@ function ResponsiveCanvas({ children }) {
     return () => observer.disconnect();
   }, []);
 
+  const fov = size.width < 640 ? 65 : size.width < 1024 ? 55 : 50;
+
   return (
-    <div ref={containerRef} className="w-full max-w-md h-96 pointer-events-auto">
+    <div
+      ref={containerRef}
+      className="w-full h-[45vh] sm:h-[55vh] md:h-[65vh] lg:h-[70vh] pointer-events-auto"
+    >
       {size.width && size.height && (
-        <Canvas style={{ width: "100%", height: "100%" }} camera={{ position: [0, 3, 6], fov: 50 }}>
-          <ambientLight intensity={0.5} />
+        <Canvas
+          style={{ width: "100%", height: "100%" }}
+          camera={{ position: [0, 3, 6], fov }}
+        >
+          <ambientLight intensity={0.6} />
           <directionalLight position={[5, 5, 5]} intensity={1} />
           {children}
-          <OrbitControls enableZoom={false} />
+          <OrbitControls enableZoom={false} enablePan={false} />
         </Canvas>
       )}
     </div>
   );
 }
 
-// Main Component
+// 🎉 Main Component
 export default function BirthdayWish() {
   const [opened, setOpened] = useState(false);
   const [candlesBlown, setCandlesBlown] = useState(false);
-  const [name, setName] = useState("");
-  const [finalName, setFinalName] = useState("");
   const audioRef = useRef(null);
 
   useEffect(() => {
@@ -155,12 +176,16 @@ export default function BirthdayWish() {
   }, [opened]);
 
   return (
-    <div className="flex flex-col items-center justify-center h-screen w-screen bg-gradient-to-tr from-pink-200 via-purple-200 to-blue-200 relative overflow-visible">
+    <div className="flex flex-col items-center justify-center h-screen w-screen bg-gradient-to-tr from-pink-200 via-purple-200 to-blue-200 relative overflow-hidden">
+      {/* 🎵 Background Music */}
       <audio ref={audioRef} src="/audio/happybirthday.mp3" autoPlay loop />
 
-      {opened && <Confetti width={window.innerWidth} height={window.innerHeight} />}
+      {/* 🎊 Confetti */}
+      {opened && (
+        <Confetti width={window.innerWidth} height={window.innerHeight} />
+      )}
 
-      {/* Gift */}
+      {/* 🎁 Gift */}
       {!opened && (
         <motion.div
           className="flex flex-col items-center cursor-pointer"
@@ -170,56 +195,68 @@ export default function BirthdayWish() {
           transition={{ type: "spring", duration: 1 }}
         >
           <Gift size={100} className="text-pink-600 drop-shadow-lg" />
-          <p className="mt-4 text-xl font-semibold text-pink-700 animate-bounce">
+          <p className="mt-4 text-lg sm:text-xl font-semibold text-pink-700 animate-bounce">
             Tap to open 🎁
           </p>
         </motion.div>
       )}
 
-      {/* Birthday Scene */}
+      {/* 🎂 Birthday Scene */}
       <AnimatePresence>
         {opened && (
           <motion.div
-            className="absolute flex flex-col items-center text-center p-6 bg-white/80 rounded-2xl shadow-2xl backdrop-blur-md pointer-events-auto"
+            className="absolute flex flex-col items-center text-center p-4 sm:p-6 bg-white/80 rounded-2xl shadow-2xl backdrop-blur-md pointer-events-auto max-w-[95%] sm:max-w-lg"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 1 }}
           >
-            <PartyPopper size={60} className="text-yellow-500 animate-spin-slow" />
-            <h1 className="text-4xl font-bold text-pink-600 mt-4">
+            <PartyPopper
+              size={50}
+              className="text-yellow-500 animate-spin-slow"
+            />
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-pink-600 mt-3">
               🎉 Happy Birthday Punnu 🎉
             </h1>
-            <p className="mt-2 text-lg text-gray-700">
+            <p className="mt-2 text-sm sm:text-base md:text-lg text-gray-700">
               Wishing you a day filled with love, laughter, and joy 💖
             </p>
 
+            {/* 🖼️ Cake + Balloons + Fireworks */}
             <ResponsiveCanvas>
-              {/* Cake */}
               <Cake3D candlesBlown={candlesBlown} />
 
-              {/* Floating Balloons */}
+              {/* Balloons */}
               {opened &&
                 Array.from({ length: 6 }).map((_, i) => (
                   <Balloon
                     key={i}
-                    position={[Math.random() * 4 - 2, Math.random() * 2, Math.random() * 4 - 2]}
+                    position={[
+                      Math.random() * 4 - 2,
+                      Math.random() * 2,
+                      Math.random() * 4 - 2,
+                    ]}
                   />
                 ))}
 
-              {/* Fireworks after blowing candles */}
+              {/* Fireworks */}
               {candlesBlown &&
                 Array.from({ length: 3 }).map((_, i) => (
                   <FireworkParticle
                     key={i}
-                    position={[Math.random() * 4 - 2, 2 + i, Math.random() * 4 - 2]}
+                    position={[
+                      Math.random() * 4 - 2,
+                      2 + i,
+                      Math.random() * 4 - 2,
+                    ]}
                   />
                 ))}
             </ResponsiveCanvas>
 
+            {/* Button / Candles Message */}
             {!candlesBlown ? (
               <motion.button
-                className="mt-4 flex items-center gap-2 bg-pink-500 text-white px-4 py-2 rounded-full shadow-lg hover:bg-pink-600"
+                className="mt-4 flex items-center gap-2 bg-pink-500 text-white px-3 py-2 sm:px-4 sm:py-2 rounded-full shadow-lg hover:bg-pink-600 text-sm sm:text-base"
                 onClick={() => setCandlesBlown(true)}
                 whileTap={{ scale: 0.9 }}
               >
@@ -229,7 +266,7 @@ export default function BirthdayWish() {
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                className="text-2xl text-orange-600 font-bold mt-4"
+                className="text-lg sm:text-xl md:text-2xl text-orange-600 font-bold mt-4"
               >
                 ✨ Candles blown! May your wishes come true ✨
               </motion.div>
