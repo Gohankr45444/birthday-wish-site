@@ -301,7 +301,7 @@ export default function BirthdayWish() {
                 >
                   Blow the candles 🎂
                 </motion.button>
-                <p className="mt-2 text-xs sm:text-sm text-gray-600">
+                <p className="mt-2 text-xs sm:text-sm sm:font-semibold text-gray-600">
                   🎤 Mic mein phoonk maro 😉
                 </p>
               </>
