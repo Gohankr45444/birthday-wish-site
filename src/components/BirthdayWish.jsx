@@ -157,7 +157,7 @@ export default function BirthdayWish() {
   return (
     <div className="flex flex-col items-center justify-center h-screen w-screen bg-gradient-to-tr from-pink-200 via-purple-200 to-blue-200 relative overflow-visible">
       <audio ref={audioRef} src="/audio/happybirthday.mp3" autoPlay loop />
-      
+
       {opened && <Confetti width={window.innerWidth} height={window.innerHeight} />}
 
       {/* Gift */}
@@ -188,29 +188,11 @@ export default function BirthdayWish() {
           >
             <PartyPopper size={60} className="text-yellow-500 animate-spin-slow" />
             <h1 className="text-4xl font-bold text-pink-600 mt-4">
-              🎉 Happy Birthday {finalName || ""} 🎉
+              🎉 Happy Birthday Punnu 🎉
             </h1>
             <p className="mt-2 text-lg text-gray-700">
               Wishing you a day filled with love, laughter, and joy 💖
             </p>
-
-            {!finalName && (
-              <div className="mt-4 flex gap-2">
-                <input
-                  type="text"
-                  placeholder="Enter your name"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  className="px-3 py-2 rounded-lg border border-pink-400 focus:outline-none focus:ring-2 focus:ring-pink-500"
-                />
-                <button
-                  onClick={() => setFinalName(name)}
-                  className="bg-pink-500 text-white px-4 py-2 rounded-lg shadow hover:bg-pink-600"
-                >
-                  Save
-                </button>
-              </div>
-            )}
 
             <ResponsiveCanvas>
               {/* Cake */}
